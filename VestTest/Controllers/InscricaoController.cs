@@ -9,14 +9,21 @@ using System.Linq;
 public class InscricaoController : ControllerBase
 {
     private readonly VestTestDbContext _context;
-    public InscricaoController(VestTestDbContext context) => _context = context;
+    private readonly InscricaoService _inscricaoService;
+    public InscricaoController(InscricaoService inscricaoService, VestTestDbContext context)
+    {
+        _inscricaoService = inscricaoService;
+        _context = context;
+    }
+
 
     [HttpGet("cpf/{cpf}")]
-    public async Task<ActionResult<IEnumerable<InscricaoDTO>>> GetInscricoesPorCpf(string cpf)
+    public async Task<IEnumerable<InscricaoDTO>> ObterInscricoesPorCPF(string cpf)
     {
         var inscricoes = await _context.Inscricoes
-            .Include(i => i.Candidato)
-            .Where(i => i.Candidato.CPF == cpf)
+            .Where(i => i.Candidato.CPF == cpf) // Filtra pelo CPF
+            .Include(i => i.Candidato) // Inclui o candidato
+            .Include(i => i.ProcessoSeletivo) // Inclui o processo seletivo
             .Select(i => new InscricaoDTO
             {
                 Id = i.Id,
@@ -24,17 +31,16 @@ public class InscricaoController : ControllerBase
                 Data = i.Data,
                 Status = i.Status,
                 CandidatoId = i.CandidatoId,
+                CandidatoNome = i.Candidato.Nome,
+                CandidatoCpf = i.Candidato.CPF,
                 ProcessoSeletivoId = i.ProcessoSeletivoId,
-                OfertaCursoId = i.OfertaCursoId
+                ProcessoSeletivoNome = i.ProcessoSeletivo.Nome,
+                OfertaCursoId = i.OfertaCursoId,
+                OfertaCursoNome = i.OfertaCurso.Nome
             })
             .ToListAsync();
 
-        if (!inscricoes.Any())
-        {
-            return NotFound("Nenhuma inscrição encontrada para este CPF.");
-        }
-
-        return Ok(inscricoes);
+        return inscricoes;
     }
 
     [HttpGet("por-oferta/{ofertaId}")]

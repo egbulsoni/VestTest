@@ -34,6 +34,11 @@ namespace VestTest
             services.AddTransient<GeradorCompletoDeDados>();
             services.AddControllers();
             services.AddSwaggerGen();
+
+            // Registros dos serviços no DI
+            services.AddScoped<InscricaoService>();
+            services.AddDbContext<VestTestDbContext>(options =>
+            options.UseMySql(Configuration.GetConnectionString("DefaultConnection"), ServerVersion.AutoDetect(Configuration.GetConnectionString("DefaultConnection"))));
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
