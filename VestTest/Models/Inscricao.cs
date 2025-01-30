@@ -15,20 +15,20 @@ public class Inscricao
     public DateTime Data { get; set; }
 
     [Required]
-    public Boolean Status { get; set; }
+    public bool Status { get; set; }
 
     [Required]
-    public int CandidatoId { get; set; }
     [ForeignKey("CandidatoId")]
+    public int CandidatoId { get; set; }
     public Candidato Candidato { get; set; }
 
     [Required]
-    public int ProcessoSeletivoId { get; set; }
     [ForeignKey("ProcessoSeletivoId")]
+    public int ProcessoSeletivoId { get; set; }
     public ProcessoSeletivo ProcessoSeletivo { get; set; }
 
     [Required]
-    public int OfertaCursoId { get; set; }
     [ForeignKey("OfertaCursoId")]
+    public int OfertaCursoId { get; set; }
     public OfertaCurso OfertaCurso { get; set; }
 }

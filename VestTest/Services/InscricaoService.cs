@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -29,21 +30,49 @@ public class InscricaoService
             .ToList();
     }
 
-    public InscricaoDTO GetById(int id)
+    public async Task<InscricaoDTO> GetById(int id)
     {
-        var inscricao = _context.Inscricoes
+        var inscricao = await _context.Inscricoes
             .Where(i => i.Id == id)
-            .Select(i => new InscricaoDTO
-            {
-                Id = i.Id,
-                NumeroInscricao = i.NumeroInscricao,
-                Data = i.Data,
-                Status = i.Status,
-                CandidatoId = i.CandidatoId,
-                ProcessoSeletivoId = i.ProcessoSeletivoId,
-                OfertaCursoId = i.OfertaCursoId
-            })
-            .FirstOrDefault();
+            .Include(i => i.Candidato)
+            .Include(i => i.ProcessoSeletivo)
+            .Include(i => i.OfertaCurso)
+            .FirstOrDefaultAsync();
+
+        if (inscricao == null)
+        {
+            return null;
+        }
+
+        return new InscricaoDTO
+        {
+            Id = inscricao.Id,
+            NumeroInscricao = inscricao.NumeroInscricao,
+            Data = inscricao.Data,
+            Status = inscricao.Status,
+            CandidatoId = inscricao.CandidatoId,
+            CandidatoNome = inscricao.Candidato?.Nome,
+            CandidatoCpf = inscricao.Candidato?.CPF,
+            ProcessoSeletivoId = inscricao.ProcessoSeletivoId,
+            ProcessoSeletivoNome = inscricao.ProcessoSeletivo?.Nome,
+            OfertaCursoId = inscricao.OfertaCursoId,
+            OfertaCursoNome = inscricao.OfertaCurso?.Nome
+        };
+    }
+
+    public async Task<Inscricao> TesteCarregamento(int id)
+    {
+        var inscricao = await _context.Inscricoes
+            .Where(i => i.Id == id)
+            .Include(i => i.Candidato)
+            .Include(i => i.ProcessoSeletivo)
+            .Include(i => i.OfertaCurso)
+            .FirstOrDefaultAsync();
+
+        if (inscricao == null)
+        {
+            return null;
+        }
 
         return inscricao;
     }
@@ -102,6 +131,7 @@ public class InscricaoService
 
         return true;
     }
+
     public async Task<List<InscricaoDTO>> ObterInscricoesPorCpfAsync(string cpf)
     {
         var inscricoes = await _context.Inscricoes
@@ -109,7 +139,6 @@ public class InscricaoService
             .Include(i => i.ProcessoSeletivo)
             .ToListAsync();
 
-        // Transformar as inscrições em DTOs com dados adicionais
         var inscricoesDTO = inscricoes.Select(i => new InscricaoDTO
         {
             Id = i.Id,
@@ -123,5 +152,4 @@ public class InscricaoService
 
         return inscricoesDTO;
     }
-
 }

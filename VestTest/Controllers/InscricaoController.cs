@@ -17,6 +17,18 @@ public class InscricaoController : ControllerBase
     }
 
 
+    [HttpGet("teste/{id}")]
+    public async Task<IActionResult> TesteCarregamento(int id)
+    {
+        var inscricao = await _inscricaoService.GetById(id);
+        if (inscricao == null)
+        {
+            return NotFound("Inscrição não encontrada.");
+        }
+
+        return Ok(inscricao); // Retorna a inscrição com os dados relacionados
+    }
+
     [HttpGet("cpf/{cpf}")]
     public async Task<IEnumerable<InscricaoDTO>> ObterInscricoesPorCPF(string cpf)
     {
@@ -91,26 +103,16 @@ public class InscricaoController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
-        var inscricao = await _context.Inscricoes
-            .Where(i => i.Id == id)
-            .Select(i => new InscricaoDTO
-            {
-                Id = i.Id,
-                NumeroInscricao = i.NumeroInscricao,
-                Data = i.Data,
-                Status = i.Status,
-                CandidatoId = i.CandidatoId,
-                ProcessoSeletivoId = i.ProcessoSeletivoId,
-                OfertaCursoId = i.OfertaCursoId
-            })
-            .FirstOrDefaultAsync();
+        // Chama o serviço para obter a inscrição
+        var inscricaoDto = await _inscricaoService.GetById(id);
 
-        if (inscricao == null)
+        // Verifica se não encontrou a inscrição
+        if (inscricaoDto == null)
         {
-            return NotFound();  // Caso a inscrição não seja encontrada
+            return NotFound(); // Retorna 404 se não encontrar
         }
 
-        return Ok(inscricao);  // Retorna a inscrição no formato DTO
+        return Ok(inscricaoDto); // Retorna 200 OK com os dados
     }
 
 
