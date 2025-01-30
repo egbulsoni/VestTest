@@ -24,8 +24,6 @@ public class InscricaoController : ControllerBase
                 Data = i.Data,
                 Status = i.Status,
                 CandidatoId = i.CandidatoId,
-                CandidatoNome = i.Candidato.Nome,
-                CandidatoCpf = i.Candidato.CPF,
                 ProcessoSeletivoId = i.ProcessoSeletivoId,
                 OfertaCursoId = i.OfertaCursoId
             })
@@ -65,24 +63,50 @@ public class InscricaoController : ControllerBase
 
 
     [HttpGet]
-    public IActionResult GetAll()
+    public async Task<IActionResult> GetAll()
     {
-        var inscricoes = _context.Inscricoes.ToList();
+        var inscricoes = await _context.Inscricoes
+            .Select(i => new InscricaoDTO
+            {
+                Id = i.Id,
+                NumeroInscricao = i.NumeroInscricao,
+                Data = i.Data,
+                Status = i.Status,
+                CandidatoId = i.CandidatoId,
+                ProcessoSeletivoId = i.ProcessoSeletivoId,
+                OfertaCursoId = i.OfertaCursoId
+            })
+            .ToListAsync();
+
         return Ok(inscricoes);
     }
 
+
     [HttpGet("{id}")]
-    public IActionResult GetById(int id)
+    public async Task<IActionResult> GetById(int id)
     {
-        var inscricao = _context.Inscricoes.Find(id);
+        var inscricao = await _context.Inscricoes
+            .Where(i => i.Id == id)
+            .Select(i => new InscricaoDTO
+            {
+                Id = i.Id,
+                NumeroInscricao = i.NumeroInscricao,
+                Data = i.Data,
+                Status = i.Status,
+                CandidatoId = i.CandidatoId,
+                ProcessoSeletivoId = i.ProcessoSeletivoId,
+                OfertaCursoId = i.OfertaCursoId
+            })
+            .FirstOrDefaultAsync();
 
         if (inscricao == null)
         {
-            return NotFound();
+            return NotFound();  // Caso a inscrição não seja encontrada
         }
 
-        return Ok(inscricao);
+        return Ok(inscricao);  // Retorna a inscrição no formato DTO
     }
+
 
 
     [HttpPost]
