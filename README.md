@@ -67,7 +67,7 @@ Acesse a API em `http://localhost:5000`.
 
 ## Tecnologias
 
-- .NET 6
+- .NET 5
 - Entity Framework Core
 - MySQL
 
