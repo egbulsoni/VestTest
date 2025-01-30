@@ -33,6 +33,7 @@ namespace VestTest
             // Registre o Gerador Completo
             services.AddTransient<GeradorCompletoDeDados>();
             services.AddControllers();
+            services.AddSwaggerGen();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -40,12 +41,12 @@ namespace VestTest
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseSwagger();
+                app.UseSwaggerUI();
             }
 
-            // Gerar os dados quando a aplicação for iniciada
             GerarDados(app);
 
-            // Resto da configuração do pipeline...
             app.UseRouting();
             app.UseEndpoints(endpoints =>
             {
